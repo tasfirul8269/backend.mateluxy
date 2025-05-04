@@ -21,7 +21,7 @@ const allowedOrigins = [
     'http://localhost:5173',
     'https://mateluxy-frontend-sudw.vercel.app',
     'https://real-state-frontend-sigma.vercel.app',
-    'https://frontend-mateluxy.vercel.app/'
+    'https://frontend-mateluxy.vercel.app'
   ];
   
   app.use(cors({
