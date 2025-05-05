@@ -4,13 +4,14 @@ import { errorHandler } from "../utils/erros.js";
 
 export const addAgents = async (req, res,next) => {
 
-    const {username, fullName, email,contactNumber,position, password} = req.body;
+    const {username, fullName,profileImage, email,contactNumber,position, password} = req.body;
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
    const newAgent = new Agent({
         username: username,
         fullName: fullName,
+        profileImage: profileImage,
         email: email,
         contactNumber: contactNumber,
         position: position,
