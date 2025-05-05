@@ -21,7 +21,7 @@ export const addAgents = async (req, res,next) => {
 
     try {
         await newAgent.save();
-        res.status(201).json('New Agent Has Been Added');
+        res.status(201).json(newAgent);
     } catch (error) {
         next(error);
     }
