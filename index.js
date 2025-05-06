@@ -48,8 +48,8 @@ mongoose.connect(process.env.MONGO).then(() => {
 
 app.use('/api', agentsRouter);
 app.use('/api/agents', addAgents);
-app.use('/', adminsRouter);
-app.use('/admins', addAdmins);
+app.use('/api', adminsRouter);
+app.use('/api/admins', addAdmins);
 app.use('/api', adminSignIn);
 app.use(cookieParser());
 app.use('/api/admin', authRouter);
