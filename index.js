@@ -46,7 +46,6 @@ mongoose.connect(process.env.MONGO).then(() => {
 });
 
 
-
 app.use('/api', agentsRouter);
 app.use('/api/agents', addAgents);
 app.use('/', adminsRouter);
