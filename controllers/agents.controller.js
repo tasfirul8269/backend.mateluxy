@@ -12,6 +12,22 @@ export const agents = async (req, res, next) => {
     }
 };
 
+export const getAgent = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const agent = await Agent.findById(id).select('-password');  // Exclude password field
+        
+        if (!agent) {
+            return next(errorHandler(404, "Agent not found"));
+        }
+        
+        res.status(200).json(agent);
+    } catch (error) {
+        console.error("Error fetching agent:", error);
+        next(error);
+    }
+};
+
 export const updateAgent = async (req, res, next) => {
     try {
         const { id } = req.params;
