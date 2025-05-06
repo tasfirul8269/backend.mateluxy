@@ -14,7 +14,25 @@ export const admins = async (req, res, next) => {
 export const updateAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { username, fullName, email, password, profileImage } = req.body;
+        const { username, fullName, email, password, profileImage, role } = req.body;
+        
+        // Get the requesting admin's info from the token
+        const requestingAdminId = req.user.id;
+        const requestingAdmin = await Admin.findById(requestingAdminId);
+        
+        if (!requestingAdmin) {
+            return next(errorHandler(404, "Requesting admin not found"));
+        }
+        
+        // Only Super Admin can change roles or update other admins
+        if (requestingAdmin.role !== 'Super Admin' && id !== requestingAdminId) {
+            return next(errorHandler(403, "Only Super Admins can update other admin accounts"));
+        }
+        
+        // Only Super Admin can set roles
+        if (role && role !== requestingAdmin.role && requestingAdmin.role !== 'Super Admin') {
+            return next(errorHandler(403, "Only Super Admins can change admin roles"));
+        }
 
         // Create update object
         const updateData = {
@@ -23,6 +41,11 @@ export const updateAdmin = async (req, res, next) => {
             email,
             profileImage
         };
+        
+        // Include role in update if provided
+        if (role) {
+            updateData.role = role;
+        }
 
         // Only hash and update password if it's provided
         if (password) {
@@ -48,6 +71,19 @@ export const updateAdmin = async (req, res, next) => {
 export const deleteAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
+        
+        // Get the requesting admin's info from the token
+        const requestingAdminId = req.user.id;
+        const requestingAdmin = await Admin.findById(requestingAdminId);
+        
+        if (!requestingAdmin) {
+            return next(errorHandler(404, "Requesting admin not found"));
+        }
+        
+        // Only Super Admin can delete admins
+        if (requestingAdmin.role !== 'Super Admin') {
+            return next(errorHandler(403, "Only Super Admins can delete admin accounts"));
+        }
         
         // Check if this is the last admin
         const adminCount = await Admin.countDocuments();
@@ -91,5 +127,44 @@ export const checkUsernameAvailability = async (req, res) => {
     } catch (error) {
         console.error("Error checking username availability:", error);
         res.status(500).json({ message: "Error checking username availability" });
+    }
+};
+
+// Track admin activity (updates lastActivity timestamp)
+export const updateAdminActivity = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        const admin = await Admin.findById(id);
+        if (!admin) {
+            return next(errorHandler(404, "Admin not found"));
+        }
+        
+        admin.lastActivity = new Date();
+        admin.isOnline = true;
+        await admin.save();
+        
+        res.status(200).json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Set admin offline on logout
+export const setAdminOffline = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        const admin = await Admin.findById(id);
+        if (!admin) {
+            return next(errorHandler(404, "Admin not found"));
+        }
+        
+        admin.isOnline = false;
+        await admin.save();
+        
+        res.status(200).json({ success: true });
+    } catch (error) {
+        next(error);
     }
 };

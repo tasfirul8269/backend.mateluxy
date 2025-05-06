@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 
 export const adminSignIn = async (req, res, next) => {
     const { email, password } = req.body;
-    const hashedPassword = await bcryptjs.hash(password, 10);
     try {
         const validAdmin = await Admin.findOne({ email });
         if (!validAdmin) {
@@ -16,6 +15,13 @@ export const adminSignIn = async (req, res, next) => {
         if (!validPassword) {
             return next(errorHandler(401, "Invalid credentials"));
         }
+        
+        // Update login time and set online status
+        validAdmin.lastLogin = new Date();
+        validAdmin.lastActivity = new Date();
+        validAdmin.isOnline = true;
+        await validAdmin.save();
+        
         const token = jwt.sign({ id: validAdmin._id }, process.env.JWT_SECRET);
 
         const { password: pass, ...rest } = validAdmin._doc;

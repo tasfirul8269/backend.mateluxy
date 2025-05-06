@@ -26,6 +26,29 @@ const AdminSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    role: {
+        type: String,
+        enum: ['Super Admin', 'Property Admin', 'Agent Admin', 'Admin'],
+        default: 'Admin'
+    },
+    isOnline: {
+        type: Boolean,
+        default: false
+    },
+    lastActivity: {
+        type: Date,
+        default: Date.now
+    },
+    lastLogin: {
+        type: Date,
+        default: Date.now
+    },
+    adminId: {
+        type: String,
+        default: function() {
+            return 'ADM' + Math.floor(1000 + Math.random() * 9000);
+        }
     }
 }, { timestamps: true });
 
