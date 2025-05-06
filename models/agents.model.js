@@ -65,9 +65,17 @@ const AgentSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // Modified to handle both string URLs and objects with platform/url
   socialLinks: {
     type: [String],
-    default: []
+    default: [],
+    // Custom validation to handle both string and object formats
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v);
+      },
+      message: props => `${props.value} is not a valid array of social links`
+    }
   }
 }, { timestamps: true });
 
