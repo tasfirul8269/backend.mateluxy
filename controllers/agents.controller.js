@@ -62,3 +62,28 @@ export const deleteAgent = async (req, res, next) => {
         next(error);
     }
 };
+
+export const checkUsernameAvailability = async (req, res) => {
+    try {
+        const { username, currentId } = req.query;
+        
+        if (!username) {
+            return res.status(400).json({ message: "Username is required" });
+        }
+
+        // Build query to check username availability
+        const query = { username: username.toLowerCase() };
+        
+        // If currentId is provided, exclude the current agent from the check
+        if (currentId) {
+            query._id = { $ne: currentId };
+        }
+
+        const existingAgent = await Agent.findOne(query);
+        
+        res.json({ available: !existingAgent });
+    } catch (error) {
+        console.error("Error checking username availability:", error);
+        res.status(500).json({ message: "Error checking username availability" });
+    }
+};
