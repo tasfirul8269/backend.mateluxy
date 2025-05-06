@@ -37,6 +37,7 @@ const allowedOrigins = [
 
 app.use(bodyParser.json());
 app.use(express.json());
+app.use(cookieParser());
 
 
 mongoose.connect(process.env.MONGO).then(() => {
@@ -51,7 +52,6 @@ app.use('/api/agents', addAgents);
 app.use('/api', adminsRouter);
 app.use('/api/admins', addAdmins);
 app.use('/api', adminSignIn);
-app.use(cookieParser());
 app.use('/api/admin', authRouter);
 app.use('/api/properties', propertyRoutes);
 
