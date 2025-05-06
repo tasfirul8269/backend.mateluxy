@@ -12,6 +12,10 @@ const AdminSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    profileImage: {
+        type: String,
+        default: ''
+    },
     email: {
         type: String,
         required: true,
@@ -23,7 +27,6 @@ const AdminSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-
 }, { timestamps: true });
 
 const Admin = mongoose.model('Admin', AdminSchema);
