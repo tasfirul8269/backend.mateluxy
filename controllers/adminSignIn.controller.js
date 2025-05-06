@@ -16,12 +16,6 @@ export const adminSignIn = async (req, res, next) => {
             return next(errorHandler(401, "Invalid credentials"));
         }
         
-        // Update login time and set online status
-        validAdmin.lastLogin = new Date();
-        validAdmin.lastActivity = new Date();
-        validAdmin.isOnline = true;
-        await validAdmin.save();
-        
         const token = jwt.sign({ id: validAdmin._id }, process.env.JWT_SECRET);
 
         const { password: pass, ...rest } = validAdmin._doc;
