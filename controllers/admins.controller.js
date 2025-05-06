@@ -48,6 +48,15 @@ export const updateAdmin = async (req, res, next) => {
 export const deleteAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
+        
+        // Check if this is the last admin
+        const adminCount = await Admin.countDocuments();
+        if (adminCount <= 1) {
+            return res.status(400).json({ 
+                message: "Cannot delete the last admin. At least one admin must remain in the system." 
+            });
+        }
+
         const deletedAdmin = await Admin.findByIdAndDelete(id);
 
         if (!deletedAdmin) {
@@ -57,5 +66,30 @@ export const deleteAdmin = async (req, res, next) => {
         res.status(200).json({ message: "Admin deleted successfully" });
     } catch (error) {
         next(error);
+    }
+};
+
+export const checkUsernameAvailability = async (req, res) => {
+    try {
+        const { username, currentId } = req.query;
+        
+        if (!username) {
+            return res.status(400).json({ message: "Username is required" });
+        }
+
+        // Build query to check username availability
+        const query = { username: username.toLowerCase() };
+        
+        // If currentId is provided, exclude the current admin from the check
+        if (currentId) {
+            query._id = { $ne: currentId };
+        }
+
+        const existingAdmin = await Admin.findOne(query);
+        
+        res.json({ available: !existingAdmin });
+    } catch (error) {
+        console.error("Error checking username availability:", error);
+        res.status(500).json({ message: "Error checking username availability" });
     }
 };

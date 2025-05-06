@@ -7,11 +7,13 @@ const AgentSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  //General
   fullName: {
     type: String,
     required: true,
     trim: true
   },
+  //General
   profileImage: {
     type: String,
     default: ''
@@ -27,6 +29,7 @@ const AgentSchema = new mongoose.Schema({
     type: String,
     required: true  
   },
+  //Specific
   position: {
     type: String,
     default: ''
@@ -35,6 +38,7 @@ const AgentSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  //Specific
   department: {
     type: String,
     default: ''
@@ -43,10 +47,12 @@ const AgentSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  //Specific
   vcard: {
     type: String,
     default: ''
   },
+  //Specific
   languages: {
     type: [String],
     default: []
