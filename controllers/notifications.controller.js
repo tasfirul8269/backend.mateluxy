@@ -6,11 +6,27 @@ export const getNotifications = async (req, res, next) => {
   try {
     const adminId = req.user.id;
     
+    // Populate the createdBy field to get the admin name
     const notifications = await Notification.find({ 
       recipient: adminId 
-    }).sort({ createdAt: -1 }).limit(50);
+    })
+    .populate('createdBy', 'fullName') // Populate only the fullName field
+    .sort({ createdAt: -1 })
+    .limit(50);
     
-    res.status(200).json(notifications);
+    // Format the response to include createdByName
+    const formattedNotifications = notifications.map(notification => {
+      const notificationObj = notification.toObject();
+      
+      // Add createdByName field if createdBy exists and has fullName
+      if (notification.createdBy && notification.createdBy.fullName) {
+        notificationObj.createdByName = notification.createdBy.fullName;
+      }
+      
+      return notificationObj;
+    });
+    
+    res.status(200).json(formattedNotifications);
   } catch (error) {
     next(error);
   }
