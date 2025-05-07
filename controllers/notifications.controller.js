@@ -1,4 +1,5 @@
 import Notification from "../models/notification.model.js";
+import Admin from "../models/admin.model.js";
 import { errorHandler } from "../utils/erros.js";
 
 // Get all notifications for the authenticated user
@@ -42,9 +43,23 @@ export const createNotification = async (req, res, next) => {
       return next(errorHandler(400, "Type and message are required"));
     }
     
-    // Default recipient is current admin if no recipients specified
-    const adminId = req.user.id;
-    const notificationRecipients = recipients || [adminId];
+    // The admin who is making the change (the creator of the notification)
+    const createdById = req.user.id;
+    
+    // Determine recipients - If not specified, send to all admins
+    let notificationRecipients = recipients;
+    
+    if (!notificationRecipients || notificationRecipients.length === 0) {
+      try {
+        // Get all admins
+        const allAdmins = await Admin.find({}, '_id');
+        notificationRecipients = allAdmins.map(admin => admin._id);
+      } catch (err) {
+        console.error("Error getting admin list:", err);
+        // Fallback to just the current admin if we can't get all admins
+        notificationRecipients = [createdById];
+      }
+    }
     
     // Create notifications for all recipients
     const notifications = await Promise.all(
@@ -55,7 +70,7 @@ export const createNotification = async (req, res, next) => {
           entityId,
           entityName,
           recipient,
-          createdBy: adminId
+          createdBy: createdById // The admin who made the change
         });
       })
     );
