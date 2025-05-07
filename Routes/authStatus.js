@@ -8,10 +8,15 @@ router.get("/check-auth", verifyToken, (req, res) => {
   res.status(200).json({ success: true, message: "Authorized" });
 });
 
-// Add logout endpoint
+// Enhanced logout endpoint
 router.post("/logout", (req, res) => {
-  // Clear the authentication cookie
-  res.clearCookie('access_token').status(200).json({ 
+  // Clear the authentication cookie - make sure to match the cookie settings from login
+  res.clearCookie('access_token', { 
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+    path: '/'
+  }).status(200).json({ 
     success: true, 
     message: "Logged out successfully" 
   });
