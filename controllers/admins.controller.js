@@ -93,3 +93,35 @@ export const checkUsernameAvailability = async (req, res) => {
         res.status(500).json({ message: "Error checking username availability" });
     }
 };
+
+// Get current admin profile
+export const getCurrentAdmin = async (req, res, next) => {
+    try {
+        // req.user comes from the verifyToken middleware
+        const adminId = req.user.id;
+        
+        // Find the admin by ID, excluding the password field
+        const admin = await Admin.findById(adminId).select('-password');
+        
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "Admin not found" });
+        }
+        
+        // Return the admin data
+        res.status(200).json({
+            success: true,
+            admin: {
+                _id: admin._id,
+                fullName: admin.fullName,
+                email: admin.email,
+                username: admin.username,
+                profileImage: admin.profileImage || '',
+                adminId: admin.adminId,
+                createdAt: admin.createdAt,
+                role: 'Administrator' // You can expand this later if you add roles to your model
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
