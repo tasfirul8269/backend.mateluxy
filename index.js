@@ -7,6 +7,7 @@ import adminsRouter from './Routes/admins.routes.js';
 import addAdmins from './Routes/addAdmins.route.js';
 import adminSignIn from './Routes/adminSignIn.route.js';
 import authRouter from './Routes/authStatus.js';
+import notificationsRouter from './Routes/notifications.routes.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -62,6 +63,7 @@ app.use('/api/admins', addAdmins);
 app.use('/api', adminSignIn);
 app.use('/api/admin', authRouter);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/notifications', notificationsRouter);
 
 
 
