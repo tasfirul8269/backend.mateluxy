@@ -26,28 +26,20 @@ export const updateAdmin = async (req, res, next) => {
             });
         }
 
-        // Verify the admin is authorized to make this update
-        // This ensures only logged-in admins can update their own profiles
-        // For full security, you should also check if the current admin has permissions to update others
+        // Verify the admin is authenticated
         try {
             const token = req.cookies.access_token;
-            if (token) {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                
-                // Only allow admins to update their own profiles unless they have special privileges
-                // This is a basic check - you might want to implement role-based checks
-                if (decoded.id !== id) {
-                    return res.status(403).json({ 
-                        success: false, 
-                        message: "You do not have permission to update this admin profile" 
-                    });
-                }
-            } else {
+            if (!token) {
                 return res.status(401).json({ 
                     success: false, 
                     message: "Authentication required" 
                 });
             }
+            
+            // Verify token but don't restrict to self-updates
+            // Any authenticated admin can update any other admin
+            jwt.verify(token, process.env.JWT_SECRET);
+            
         } catch (error) {
             return res.status(401).json({ 
                 success: false, 
