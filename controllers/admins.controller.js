@@ -1,6 +1,7 @@
 import Admin from "../models/admin.model.js";
 import { errorHandler } from "../utils/erros.js";
 import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const admins = async (req, res, next) => {
     try {
@@ -16,13 +17,82 @@ export const updateAdmin = async (req, res, next) => {
         const { id } = req.params;
         const { username, fullName, email, password, profileImage } = req.body;
         
+        // Check if admin exists first
+        const adminExists = await Admin.findById(id);
+        if (!adminExists) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Admin not found" 
+            });
+        }
+
+        // Verify the admin is authorized to make this update
+        // This ensures only logged-in admins can update their own profiles
+        // For full security, you should also check if the current admin has permissions to update others
+        try {
+            const token = req.cookies.access_token;
+            if (token) {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                
+                // Only allow admins to update their own profiles unless they have special privileges
+                // This is a basic check - you might want to implement role-based checks
+                if (decoded.id !== id) {
+                    return res.status(403).json({ 
+                        success: false, 
+                        message: "You do not have permission to update this admin profile" 
+                    });
+                }
+            } else {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: "Authentication required" 
+                });
+            }
+        } catch (error) {
+            return res.status(401).json({ 
+                success: false, 
+                message: "Invalid token or authorization error" 
+            });
+        }
+        
+        // Check if username is being changed and already exists
+        if (username && username !== adminExists.username) {
+            const usernameExists = await Admin.findOne({ 
+                username: username.toLowerCase(),
+                _id: { $ne: id } // exclude current admin
+            });
+            
+            if (usernameExists) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Username already taken" 
+                });
+            }
+        }
+        
+        // Check if email is being changed and already exists
+        if (email && email !== adminExists.email) {
+            const emailExists = await Admin.findOne({ 
+                email: email.toLowerCase(),
+                _id: { $ne: id } // exclude current admin
+            });
+            
+            if (emailExists) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Email already in use" 
+                });
+            }
+        }
+        
         // Create update object
-        const updateData = {
-            username,
-            fullName,
-            email,
-            profileImage
-        };
+        const updateData = {};
+        
+        // Only update fields that were provided
+        if (username) updateData.username = username;
+        if (fullName) updateData.fullName = fullName;
+        if (email) updateData.email = email;
+        if (profileImage) updateData.profileImage = profileImage;
 
         // Only hash and update password if it's provided
         if (password) {
@@ -35,12 +105,13 @@ export const updateAdmin = async (req, res, next) => {
             { new: true }
         ).select('-password');
 
-        if (!updatedAdmin) {
-            return res.status(404).json({ message: "Admin not found" });
-        }
-
-        res.status(200).json(updatedAdmin);
+        res.status(200).json({
+            success: true,
+            message: "Admin updated successfully",
+            ...updatedAdmin._doc
+        });
     } catch (error) {
+        console.error("Error updating admin:", error);
         next(error);
     }
 };
