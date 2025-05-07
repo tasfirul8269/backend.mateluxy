@@ -35,10 +35,18 @@ const allowedOrigins = [
     credentials: true, // if you're using cookies/auth
   }));
 
-app.use(bodyParser.json());
-app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
+// Extend timeout for large requests
+app.use((req, res, next) => {
+  // Set timeout to 5 minutes
+  req.setTimeout(300000);
+  res.setTimeout(300000);
+  next();
+});
 
 mongoose.connect(process.env.MONGO).then(() => {
     console.log('Connected to MongoDB');

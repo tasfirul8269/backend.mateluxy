@@ -36,6 +36,7 @@ export const addAdmins = async (req, res, next) => {
             email,
             password: hashedPassword,
             profileImage: profileImage || '',
+            tags: [{ type: String }], // Added for property tags, primarily for Off Plan
         });
 
         await newAdmin.save();

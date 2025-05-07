@@ -1,12 +1,28 @@
-
 import Property from '../models/Property.js';
 
-// Get all properties - simplified with async/await pattern
+// Get all properties - with filtering options
 export async function getAllProperties(req, res) {
   try {
-    const properties = await Property.find();
+    const { agent } = req.query;
+    
+    // Build filter based on query parameters
+    const filter = {};
+    
+    // If agent ID is provided, filter by agent
+    if (agent) {
+      console.log(`Filtering properties by agent: ${agent}`);
+      filter.agent = agent;
+    }
+    
+    console.log("Property filter:", filter);
+    
+    // Find properties with filter
+    const properties = await Property.find(filter);
+    console.log(`Found ${properties.length} properties matching filter`);
+    
     res.status(200).json(properties);
   } catch (error) {
+    console.error("Error getting properties:", error);
     res.status(500).json({ message: error.message });
   }
 }
@@ -22,12 +38,23 @@ export async function getPropertyById(req, res) {
   }
 }
 
-// Create a new property - simplified with direct error handling
+// Create a new property with agent linking
 export async function createProperty(req, res) {
   try {
+    console.log("Creating property with data:", req.body);
+    
+    // Ensure agent is provided
+    if (!req.body.agent) {
+      console.error("No agent ID provided in property creation");
+      return res.status(400).json({ message: "Agent ID is required" });
+    }
+    
     const newProperty = await new Property(req.body).save();
+    console.log(`Property created successfully with ID: ${newProperty._id} for agent: ${req.body.agent}`);
+    
     res.status(201).json(newProperty);
   } catch (error) {
+    console.error("Error creating property:", error);
     res.status(400).json({ message: error.message });
   }
 }
@@ -35,7 +62,7 @@ export async function createProperty(req, res) {
 // Update a property - simplified with single query
 export async function updateProperty(req, res) {
   try {
-    const property = await findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const property = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!property) return res.status(404).json({ message: 'Property not found' });
     res.status(200).json(property);
   } catch (error) {

@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 const propertySchema = new mongoose.Schema({
@@ -33,6 +32,7 @@ const propertySchema = new mongoose.Schema({
     brochureFile: { type: String },   // Added for off-plan
     shortDescription: { type: String }, // Added for off-plan
     exactLocation: { type: String },  // Added for off-plan
+    tags: [{ type: String }], // Added for property tags, primarily for Off Plan
     
     // Commercial-specific
     commercialType: { type: String },
