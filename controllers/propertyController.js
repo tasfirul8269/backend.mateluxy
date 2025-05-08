@@ -3,7 +3,7 @@ import Property from '../models/Property.js';
 // Get all properties - with filtering options
 export async function getAllProperties(req, res) {
   try {
-    const { agent } = req.query;
+    const { agent, includeAgent = 'true' } = req.query;
     
     // Build filter based on query parameters
     const filter = {};
@@ -16,8 +16,20 @@ export async function getAllProperties(req, res) {
     
     console.log("Property filter:", filter);
     
-    // Find properties with filter
-    const properties = await Property.find(filter);
+    // Create query
+    let query = Property.find(filter);
+    
+    // Populate agent data if requested
+    if (includeAgent === 'true') {
+      query = query.populate({
+        path: 'agent',
+        select: 'fullName profileImage languages position', // Select only needed fields
+        model: 'Agent'
+      });
+    }
+    
+    // Execute query
+    const properties = await query;
     console.log(`Found ${properties.length} properties matching filter`);
     
     res.status(200).json(properties);
