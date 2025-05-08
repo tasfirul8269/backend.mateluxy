@@ -23,7 +23,7 @@ export async function getAllProperties(req, res) {
     if (includeAgent === 'true') {
       query = query.populate({
         path: 'agent',
-        select: 'fullName profileImage languages position', // Select only needed fields
+        select: 'fullName profileImage languages position whatsapp contactNumber', // Added contact fields
         model: 'Agent'
       });
     }
