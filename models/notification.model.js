@@ -51,32 +51,87 @@ const NotificationSchema = new mongoose.Schema({
   color: {
     type: String,
     default: null
+  },
+  title: {
+    type: String,
+    default: null
   }
 }, { timestamps: true });
 
-// Pre-save hook to set icon and color based on type
+// Pre-save hook to set icon, color, and title based on type
 NotificationSchema.pre('save', function(next) {
-  // Default icons and colors for each notification type
+  // Default icons, colors, and titles for each notification type
   const typeConfigs = {
-    'PROPERTY_ADDED': { icon: '🏠', color: 'bg-green-500' },
-    'PROPERTY_UPDATED': { icon: '🔄', color: 'bg-blue-500' },
-    'PROPERTY_DELETED': { icon: '🗑️', color: 'bg-red-500' },
-    'AGENT_ADDED': { icon: '👤', color: 'bg-green-500' },
-    'AGENT_UPDATED': { icon: '🔄', color: 'bg-blue-500' },
-    'AGENT_DELETED': { icon: '🗑️', color: 'bg-red-500' },
-    'ADMIN_ADDED': { icon: '👑', color: 'bg-green-500' },
-    'ADMIN_UPDATED': { icon: '🔄', color: 'bg-blue-500' },
-    'ADMIN_DELETED': { icon: '🗑️', color: 'bg-red-500' },
-    'SYSTEM': { icon: '⚙️', color: 'bg-gray-500' }
+    // Property notifications with enhanced styling
+    'PROPERTY_ADDED': { 
+      icon: '🏠', 
+      color: 'bg-green-500',
+      title: 'New Property Added'
+    },
+    'PROPERTY_UPDATED': { 
+      icon: '🔄', 
+      color: 'bg-blue-500',
+      title: 'Property Updated'
+    },
+    'PROPERTY_DELETED': { 
+      icon: '🗑️', 
+      color: 'bg-red-500',
+      title: 'Property Deleted'
+    },
+    
+    // Agent notifications with enhanced styling
+    'AGENT_ADDED': { 
+      icon: '👤', 
+      color: 'bg-green-500',
+      title: 'New Agent Added'
+    },
+    'AGENT_UPDATED': { 
+      icon: '🔄', 
+      color: 'bg-blue-500',
+      title: 'Agent Updated'
+    },
+    'AGENT_DELETED': { 
+      icon: '🗑️', 
+      color: 'bg-red-500',
+      title: 'Agent Deleted'
+    },
+    
+    // Admin notifications with enhanced styling
+    'ADMIN_ADDED': { 
+      icon: '👑', 
+      color: 'bg-green-500',
+      title: 'New Admin Added'
+    },
+    'ADMIN_UPDATED': { 
+      icon: '🔄', 
+      color: 'bg-blue-500',
+      title: 'Admin Updated'
+    },
+    'ADMIN_DELETED': { 
+      icon: '🗑️', 
+      color: 'bg-red-500',
+      title: 'Admin Deleted'
+    },
+    
+    // System notifications
+    'SYSTEM': { 
+      icon: '⚙️', 
+      color: 'bg-gray-500',
+      title: 'System Notification'
+    }
   };
 
-  // Only set icon and color if not already set
+  // Set icon, color, and title if not already set
   if (!this.icon && typeConfigs[this.type]) {
     this.icon = typeConfigs[this.type].icon;
   }
   
   if (!this.color && typeConfigs[this.type]) {
     this.color = typeConfigs[this.type].color;
+  }
+  
+  if (!this.title && typeConfigs[this.type]) {
+    this.title = typeConfigs[this.type].title;
   }
   
   next();
