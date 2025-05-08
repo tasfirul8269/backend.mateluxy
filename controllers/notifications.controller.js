@@ -7,29 +7,8 @@ export const getNotifications = async (req, res, next) => {
   try {
     const adminId = req.user.id;
     
-    // Check if there's a 'since' query parameter to filter by timestamp
-    let query = { recipient: adminId };
-    
-    if (req.query.since) {
-      try {
-        // Parse the since timestamp (expecting milliseconds since epoch)
-        const sinceTimestamp = parseInt(req.query.since, 10);
-        if (!isNaN(sinceTimestamp) && sinceTimestamp > 0) {
-          // Convert to a Date object
-          const sinceDate = new Date(sinceTimestamp);
-          console.log(`Filtering notifications created after: ${sinceDate.toISOString()}`);
-          
-          // Add timestamp filter to query
-          query.createdAt = { $gt: sinceDate };
-        }
-      } catch (parseError) {
-        console.error("Error parsing 'since' parameter:", parseError);
-        // Continue without timestamp filter if parsing fails
-      }
-    }
-    
     // Populate the createdBy field to get the admin name
-    const notifications = await Notification.find(query)
+    const notifications = await Notification.find({ recipient: adminId })
       .populate('createdBy', 'fullName') // Populate only the fullName field
       .sort({ createdAt: -1 })
       .limit(50);
@@ -143,48 +122,6 @@ export const markAllNotificationsAsRead = async (req, res, next) => {
     res.status(200).json({ 
       success: true, 
       modifiedCount: result.modifiedCount 
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Delete a notification
-export const deleteNotification = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const adminId = req.user.id;
-    
-    const notification = await Notification.findOneAndDelete({ 
-      _id: id, 
-      recipient: adminId 
-    });
-    
-    if (!notification) {
-      return next(errorHandler(404, "Notification not found"));
-    }
-    
-    res.status(200).json({ 
-      success: true, 
-      message: "Notification deleted" 
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Clear all notifications
-export const clearAllNotifications = async (req, res, next) => {
-  try {
-    const adminId = req.user.id;
-    
-    const result = await Notification.deleteMany({ 
-      recipient: adminId 
-    });
-    
-    res.status(200).json({ 
-      success: true, 
-      deletedCount: result.deletedCount 
     });
   } catch (error) {
     next(error);
