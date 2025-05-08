@@ -7,13 +7,34 @@ export const getNotifications = async (req, res, next) => {
   try {
     const adminId = req.user.id;
     
+    // Check if there's a 'since' query parameter to filter by timestamp
+    let query = { recipient: adminId };
+    
+    if (req.query.since) {
+      try {
+        // Parse the since timestamp (expecting milliseconds since epoch)
+        const sinceTimestamp = parseInt(req.query.since, 10);
+        if (!isNaN(sinceTimestamp) && sinceTimestamp > 0) {
+          // Convert to a Date object
+          const sinceDate = new Date(sinceTimestamp);
+          console.log(`Filtering notifications created after: ${sinceDate.toISOString()}`);
+          
+          // Add timestamp filter to query
+          query.createdAt = { $gt: sinceDate };
+        }
+      } catch (parseError) {
+        console.error("Error parsing 'since' parameter:", parseError);
+        // Continue without timestamp filter if parsing fails
+      }
+    }
+    
     // Populate the createdBy field to get the admin name
-    const notifications = await Notification.find({ 
-      recipient: adminId 
-    })
-    .populate('createdBy', 'fullName') // Populate only the fullName field
-    .sort({ createdAt: -1 })
-    .limit(50);
+    const notifications = await Notification.find(query)
+      .populate('createdBy', 'fullName') // Populate only the fullName field
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    console.log(`Found ${notifications.length} notifications for admin ${adminId}`);
     
     // Format the response to include createdByName
     const formattedNotifications = notifications.map(notification => {
