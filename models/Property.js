@@ -33,6 +33,8 @@ const propertySchema = new mongoose.Schema({
     shortDescription: { type: String }, // Added for off-plan
     exactLocation: { type: String },  // Added for off-plan
     tags: [{ type: String }], // Added for property tags, primarily for Off Plan
+    exteriorsGallery: [{ type: String }], // Gallery of exterior images
+    interiorsGallery: [{ type: String }], // Gallery of interior images
     
     // Commercial-specific
     commercialType: { type: String },
