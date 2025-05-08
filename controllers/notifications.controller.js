@@ -8,12 +8,12 @@ export const getNotifications = async (req, res, next) => {
     const adminId = req.user.id;
     
     // Populate the createdBy field to get the admin name
-    const notifications = await Notification.find({ 
-      recipient: adminId 
-    })
-    .populate('createdBy', 'fullName') // Populate only the fullName field
-    .sort({ createdAt: -1 })
-    .limit(50);
+    const notifications = await Notification.find({ recipient: adminId })
+      .populate('createdBy', 'fullName') // Populate only the fullName field
+      .sort({ createdAt: -1 })
+      .limit(50);
+    
+    console.log(`Found ${notifications.length} notifications for admin ${adminId}`);
     
     // Format the response to include createdByName
     const formattedNotifications = notifications.map(notification => {
@@ -46,37 +46,43 @@ export const createNotification = async (req, res, next) => {
     // The admin who is making the change (the creator of the notification)
     const createdById = req.user.id;
     
-    // Determine recipients - If not specified, send to all admins
-    let notificationRecipients = recipients;
+    console.log(`Creating notification of type: ${type}`);
+    console.log(`- Created by admin: ${createdById}`);
+    console.log(`- Message: ${message}`);
     
-    if (!notificationRecipients || notificationRecipients.length === 0) {
-      try {
-        // Get all admins
-        const allAdmins = await Admin.find({}, '_id');
-        notificationRecipients = allAdmins.map(admin => admin._id);
-      } catch (err) {
-        console.error("Error getting admin list:", err);
-        // Fallback to just the current admin if we can't get all admins
-        notificationRecipients = [createdById];
-      }
+    // Always get all admins - this ensures notifications go to everyone including initiator
+    let notificationRecipients = [];
+    try {
+      // Get all admins
+      const allAdmins = await Admin.find({}, '_id');
+      notificationRecipients = allAdmins.map(admin => admin._id.toString());
+      console.log(`- Sending to ${notificationRecipients.length} admin(s)`);
+    } catch (err) {
+      console.error("Error getting admin list:", err);
+      // Fallback to specified recipients or just the current admin if we can't get all admins
+      notificationRecipients = recipients || [createdById];
+      console.log(`- Fallback: sending to ${notificationRecipients.length} admin(s)`);
     }
     
     // Create notifications for all recipients
     const notifications = await Promise.all(
       notificationRecipients.map(recipient => {
+        console.log(`- Creating notification for recipient: ${recipient}`);
         return Notification.create({
           type,
           message,
-          entityId,
-          entityName,
+          entityId: entityId || null,
+          entityName: entityName || null,
           recipient,
           createdBy: createdById // The admin who made the change
         });
       })
     );
     
+    console.log(`Created ${notifications.length} notification(s) successfully`);
     res.status(201).json(notifications);
   } catch (error) {
+    console.error("Error creating notifications:", error);
     next(error);
   }
 };
@@ -116,48 +122,6 @@ export const markAllNotificationsAsRead = async (req, res, next) => {
     res.status(200).json({ 
       success: true, 
       modifiedCount: result.modifiedCount 
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Delete a notification
-export const deleteNotification = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const adminId = req.user.id;
-    
-    const notification = await Notification.findOneAndDelete({ 
-      _id: id, 
-      recipient: adminId 
-    });
-    
-    if (!notification) {
-      return next(errorHandler(404, "Notification not found"));
-    }
-    
-    res.status(200).json({ 
-      success: true, 
-      message: "Notification deleted" 
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Clear all notifications
-export const clearAllNotifications = async (req, res, next) => {
-  try {
-    const adminId = req.user.id;
-    
-    const result = await Notification.deleteMany({ 
-      recipient: adminId 
-    });
-    
-    res.status(200).json({ 
-      success: true, 
-      deletedCount: result.deletedCount 
     });
   } catch (error) {
     next(error);
