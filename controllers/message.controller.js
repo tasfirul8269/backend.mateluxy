@@ -1,4 +1,5 @@
 import Message from '../models/message.model.js';
+import { sendEmail } from '../utils/email.js';
 
 // Create a new message from contact form
 export const createMessage = async (req, res) => {
@@ -167,4 +168,77 @@ export const deleteMessage = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};
+
+// Reply to a message (admin)
+export const replyToMessage = async (req, res) => {
+  try {
+    const { messageId, to, subject, text, name } = req.body;
+    console.log('Replying to message:', messageId);
+    
+    // Validate required fields
+    if (!messageId || !to || !subject || !text) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message ID, recipient email, subject, and message text are required'
+      });
+    }
+    
+    // Find the message to ensure it exists
+    const message = await Message.findById(messageId);
+    
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Original message not found'
+      });
+    }
+    
+    // Send the email reply
+    await sendEmail({
+      to,
+      subject,
+      text,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #f8f8f8; padding: 20px; border-bottom: 3px solid #FF2626;">
+            <h2 style="color: #333; margin-top: 0;">Response to Your Inquiry</h2>
+            <p style="color: #666;">Dear ${name},</p>
+          </div>
+          <div style="padding: 20px; background-color: #fff; border: 1px solid #eee;">
+            <div style="white-space: pre-wrap; color: #333;">${text}</div>
+          </div>
+          <div style="padding: 15px; background-color: #f8f8f8; font-size: 12px; color: #666; border-top: 1px solid #eee;">
+            <p>Thank you for contacting MateLuxy. If you have any further questions, please don't hesitate to reach out.</p>
+            <p>Best regards,<br>The MateLuxy Team</p>
+          </div>
+        </div>
+      `
+    });
+    
+    // Update message status to 'in-progress' if it's currently 'new'
+    if (message.status === 'new') {
+      message.status = 'in-progress';
+      await message.save();
+    }
+    
+    // Record the reply in the message history (optional enhancement)
+    // This could be implemented later by adding a 'replies' array to the message model
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Reply sent successfully',
+      data: {
+        messageId,
+        status: message.status
+      }
+    });
+  } catch (error) {
+    console.error('Error sending reply:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while sending the reply',
+      error: error.message
+    });
+  }
+};
