@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import * as contactController from '../controllers/contact.controller.js';
-import { verifyToken } from './authStatus.js';
+import { verifyToken } from '../utils/verifyToken.js';
 
 // Public route - Submit contact form
 router.post('/submit', contactController.createContact);
