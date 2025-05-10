@@ -2,14 +2,15 @@ import express from 'express';
 const router = express.Router();
 import * as contactController from '../controllers/contact.controller.js';
 import { verifyToken } from '../utils/verifyToken.js';
+import { createMessage } from '../controllers/message.controller.js';
 
 // Log when routes are being registered
 console.log('Setting up contact routes');
 
 // Public route - Submit contact form
 router.post('/submit', (req, res, next) => {
-  console.log('Contact form submission received:', req.body);
-  contactController.createContact(req, res, next);
+  console.log('Contact submit route called, forwarding to messages API');
+  return createMessage(req, res, next);
 });
 
 // Admin routes - Require authentication
