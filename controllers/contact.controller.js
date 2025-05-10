@@ -3,6 +3,8 @@ import Contact from '../models/contact.model.js';
 // Create a new contact message
 export const createContact = async (req, res) => {
   try {
+    console.log('Creating contact with data:', req.body);
+    
     const {
       name,
       email,
@@ -16,6 +18,7 @@ export const createContact = async (req, res) => {
 
     // Validate required fields
     if (!name || !email || !message) {
+      console.log('Validation failed: Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'Name, email, and message are required fields'
@@ -23,26 +26,30 @@ export const createContact = async (req, res) => {
     }
 
     // Create contact message with contact preferences
-    const newContact = new Contact({
+    const contactData = {
       name,
       email,
-      phone,
-      interest,
+      phone: phone || '',
+      interest: interest || '',
       message,
       contactPreferences: {
         contactPhone: contactPhone || false,
         contactWhatsApp: contactWhatsApp || false,
         contactEmail: contactEmail || false
       }
-    });
+    };
+    
+    console.log('Creating contact with processed data:', contactData);
+    const newContact = new Contact(contactData);
 
     // Save to database
-    await newContact.save();
+    const savedContact = await newContact.save();
+    console.log('Contact saved successfully:', savedContact._id);
 
     return res.status(201).json({
       success: true,
       message: 'Contact message submitted successfully',
-      data: newContact
+      data: savedContact
     });
   } catch (error) {
     console.error('Error submitting contact message:', error);
@@ -57,31 +64,41 @@ export const createContact = async (req, res) => {
 // Get all contact messages (for admin panel)
 export const getAllContacts = async (req, res) => {
   try {
+    console.log('Getting all contacts with query params:', req.query);
     const { page = 1, limit = 10, status } = req.query;
     
-    // Build query based on filters
+    // Convert string values to numbers
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    
+    // Build query
     const query = {};
-    if (status) {
+    if (status && status !== 'all') {
       query.status = status;
     }
     
-    // Count total documents
-    const total = await Contact.countDocuments(query);
+    console.log('Using query filter:', query);
     
-    // Find contact messages with pagination
+    // Get total count for pagination
+    const totalContacts = await Contact.countDocuments(query);
+    console.log('Total contacts matching query:', totalContacts);
+    
+    // Get paginated contacts
     const contacts = await Contact.find(query)
       .sort({ createdAt: -1 }) // Sort by newest first
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
       .exec();
+    
+    console.log(`Found ${contacts.length} contacts for page ${pageNum}`);
     
     return res.status(200).json({
       success: true,
       data: {
         contacts,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        total
+        totalPages: Math.ceil(totalContacts / limitNum),
+        currentPage: pageNum,
+        totalContacts
       }
     });
   } catch (error) {

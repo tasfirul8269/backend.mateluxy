@@ -3,13 +3,34 @@ const router = express.Router();
 import * as contactController from '../controllers/contact.controller.js';
 import { verifyToken } from '../utils/verifyToken.js';
 
+// Log when routes are being registered
+console.log('Setting up contact routes');
+
 // Public route - Submit contact form
-router.post('/submit', contactController.createContact);
+router.post('/submit', (req, res, next) => {
+  console.log('Contact form submission received:', req.body);
+  contactController.createContact(req, res, next);
+});
 
 // Admin routes - Require authentication
-router.get('/', verifyToken, contactController.getAllContacts);
-router.get('/:id', verifyToken, contactController.getContactById);
-router.patch('/:id/status', verifyToken, contactController.updateContactStatus);
-router.delete('/:id', verifyToken, contactController.deleteContact);
+router.get('/', verifyToken, (req, res, next) => {
+  console.log('Getting all contacts');
+  contactController.getAllContacts(req, res, next);
+});
+
+router.get('/:id', verifyToken, (req, res, next) => {
+  console.log('Getting contact by ID:', req.params.id);
+  contactController.getContactById(req, res, next);
+});
+
+router.patch('/:id/status', verifyToken, (req, res, next) => {
+  console.log('Updating contact status:', req.params.id, req.body.status);
+  contactController.updateContactStatus(req, res, next);
+});
+
+router.delete('/:id', verifyToken, (req, res, next) => {
+  console.log('Deleting contact:', req.params.id);
+  contactController.deleteContact(req, res, next);
+});
 
 export default router;

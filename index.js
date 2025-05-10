@@ -19,23 +19,13 @@ import propertyRoutes from './Routes/propertyRoutes.js';
 dotenv.config();
 
 const app = express();
-const allowedOrigins = [
-    'http://localhost:5173',
-    'https://mateluxy-frontend-sudw.vercel.app',
-    'https://real-state-frontend-sigma.vercel.app',
-    'https://frontend-mateluxy.vercel.app'
-  ];
-  
-  app.use(cors({
-    origin: function(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true, // if you're using cookies/auth
-  }));
+// Configure CORS to allow requests from all origins during development
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true, // Allow credentials (cookies)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
@@ -65,6 +55,8 @@ app.use('/api', adminSignIn);
 app.use('/api/admin', authRouter);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/notifications', notificationsRouter);
+// Contact routes
+console.log('Registering contact routes at /api/contact');
 app.use('/api/contact', contactRouter);
 
 
