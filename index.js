@@ -57,7 +57,8 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // Return false instead of an error
+      callback(null, false);
     }
   },
   credentials: true, // Allow cookies and authentication headers
@@ -144,8 +145,8 @@ app.use('/api/admin', authRouter);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/notifications', notificationsRouter);
 
-// 404 handler
-app.all('*', (req, res) => {
+// 404 handler - Replace wildcard with explicit middleware
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     status: 404,
