@@ -9,6 +9,7 @@ import adminSignIn from './Routes/adminSignIn.route.js';
 import authRouter from './Routes/authStatus.js';
 import notificationsRouter from './Routes/notifications.routes.js';
 import contactRouter from './Routes/contact.routes.js';
+import messagesRouter from './Routes/messages.routes.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -68,6 +69,9 @@ app.use('/api/notifications', notificationsRouter);
 // Contact routes
 console.log('Registering contact routes at /api/contact');
 app.use('/api/contact', contactRouter);
+// Messages routes - new system
+console.log('Registering messages routes at /api/messages');
+app.use('/api/messages', messagesRouter);
 
 
 
