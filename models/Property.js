@@ -36,6 +36,10 @@ const propertySchema = new mongoose.Schema({
     exteriorsGallery: [{ type: String }], // Gallery of exterior images
     interiorsGallery: [{ type: String }], // Gallery of interior images
     
+    // Payment Plan percentages
+    duringConstructionPercentage: { type: Number, default: 50 }, // Percentage to be paid during construction
+    onCompletionPercentage: { type: Number, default: 50 },     // Percentage to be paid on completion
+    
     // Commercial-specific
     commercialType: { type: String },
     
