@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const contactController = require('../controllers/contact.controller');
-const { verifyToken } = require('./authStatus');
+import * as contactController from '../controllers/contact.controller.js';
+import { verifyToken } from './authStatus.js';
 
 // Public route - Submit contact form
 router.post('/submit', contactController.createContact);
@@ -12,4 +12,4 @@ router.get('/:id', verifyToken, contactController.getContactById);
 router.patch('/:id/status', verifyToken, contactController.updateContactStatus);
 router.delete('/:id', verifyToken, contactController.deleteContact);
 
-module.exports = router;
+export default router;

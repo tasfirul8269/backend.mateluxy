@@ -1,7 +1,7 @@
-const Contact = require('../models/contact.model');
+import Contact from '../models/contact.model.js';
 
 // Create a new contact message
-exports.createContact = async (req, res) => {
+export const createContact = async (req, res) => {
   try {
     const {
       name,
@@ -55,7 +55,7 @@ exports.createContact = async (req, res) => {
 };
 
 // Get all contact messages (for admin panel)
-exports.getAllContacts = async (req, res) => {
+export const getAllContacts = async (req, res) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
     
@@ -95,7 +95,7 @@ exports.getAllContacts = async (req, res) => {
 };
 
 // Get a single contact message by ID
-exports.getContactById = async (req, res) => {
+export const getContactById = async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -123,7 +123,7 @@ exports.getContactById = async (req, res) => {
 };
 
 // Update contact message status
-exports.updateContactStatus = async (req, res) => {
+export const updateContactStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -165,7 +165,7 @@ exports.updateContactStatus = async (req, res) => {
 };
 
 // Delete a contact message
-exports.deleteContact = async (req, res) => {
+export const deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
     
