@@ -26,9 +26,9 @@ const messageSchema = new mongoose.Schema({
     required: true
   },
   preferredContact: {
-    type: String,
+    type: [String],
     enum: ['email', 'phone', 'whatsapp', 'any'],
-    default: 'email'
+    default: ['email']
   },
   status: {
     type: String,

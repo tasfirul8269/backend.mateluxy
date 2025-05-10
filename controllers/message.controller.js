@@ -24,7 +24,7 @@ export const createMessage = async (req, res) => {
       phone: phone || '',
       subject: subject || 'General Inquiry',
       message,
-      preferredContact: preferredContact || 'email'
+      preferredContact: Array.isArray(preferredContact) ? preferredContact : (preferredContact ? [preferredContact] : ['email'])
     });
     
     // Save message to database
