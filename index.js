@@ -19,13 +19,23 @@ import propertyRoutes from './Routes/propertyRoutes.js';
 dotenv.config();
 
 const app = express();
-// Configure CORS to allow requests from all origins during development
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://mateluxy-frontend-sudw.vercel.app',
+    'https://real-state-frontend-sigma.vercel.app',
+    'https://frontend-mateluxy.vercel.app'
+  ];
+  
 app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true, // Allow credentials (cookies)
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+    origin: function(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // if you're using cookies/auth
+  }));
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
