@@ -52,12 +52,10 @@ const createTransporter = async () => {
     };
   }
   
-  // For production, use the configured email service
+  // For production, use Gmail SMTP
   return {
     transporter: nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'mail.frooxi.com',
-      port: process.env.EMAIL_PORT || 465,
-      secure: process.env.EMAIL_SECURE === 'false' ? false : true,
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
@@ -71,16 +69,22 @@ const createTransporter = async () => {
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+    console.log('Email requested:', email);
     
     // Find the admin by email
+    console.log('Searching for admin with email:', email);
     const admin = await Admin.findOne({ email });
+    
     if (!admin) {
+      console.log('No admin found with email:', email);
       // Return an error message indicating no admin was found with this email
       return res.status(404).json({ 
         success: false,
         message: "No admin account found with this email address."
       });
     }
+    
+    console.log('Admin found:', admin.username || admin._id);
 
     // Generate a random token
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -93,12 +97,14 @@ export const forgotPassword = async (req, res, next) => {
       token: hashedToken
     }).save();
 
-    // Create reset URL
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    // Create reset URL using the existing CLIENT_URL environment variable
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
     try {
+      console.log('Setting up email transport...');
       // Create a transporter (either test or production)
       const { transporter, isTestAccount, testAccount } = await createTransporter();
+      console.log('Email transport created, using', isTestAccount ? 'test account' : 'production settings');
       
       // Set up email options
       const from = process.env.EMAIL_FROM || 
@@ -134,9 +140,12 @@ export const forgotPassword = async (req, res, next) => {
       }
     } catch (emailError) {
       // If email sending fails, just log the error but don't stop the process
-      console.error('Email sending failed:', emailError.message);
+      console.error('\n===== EMAIL SENDING FAILED =====');
+      console.error('Error details:', emailError.message);
+      console.error('Error stack:', emailError.stack);
       console.log('For development testing, use this reset token:', resetToken);
       console.log('Reset URL:', resetUrl);
+      console.log('===============================\n');
     }
 
     res.status(200).json({
