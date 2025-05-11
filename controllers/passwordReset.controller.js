@@ -98,7 +98,20 @@ export const forgotPassword = async (req, res, next) => {
     }).save();
 
     // Create reset URL using the existing CLIENT_URL environment variable
-    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    // First try the dedicated reset page, but fall back to admin login if needed
+    let baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    
+    // Check if the frontend has been updated with the reset password page
+    // If not, redirect to admin login with a reset token parameter as a temporary solution
+    const useAdminLoginFallback = process.env.USE_ADMIN_LOGIN_FALLBACK === 'true';
+    
+    const resetUrl = useAdminLoginFallback
+      ? `${baseUrl}/admin-login?reset_token=${resetToken}`
+      : `${baseUrl}/reset-password/${resetToken}`;
+      
+    console.log('Generated reset URL:', resetUrl);
+    console.log('CLIENT_URL value:', baseUrl);
+    console.log('Using admin login fallback:', useAdminLoginFallback);
 
     try {
       console.log('Setting up email transport...');
