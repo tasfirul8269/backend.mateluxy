@@ -27,11 +27,13 @@ const PasswordResetToken = mongoose.models.PasswordResetToken ||
     }
   }));
 
-// Configure nodemailer transporter
+// Configure nodemailer transporter for webmail
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
+  host: process.env.EMAIL_HOST || 'mail.frooxi.com', // Your webmail host
+  port: process.env.EMAIL_PORT || 465, // Common ports: 465 (SSL) or 587 (TLS)
+  secure: process.env.EMAIL_SECURE === 'false' ? false : true, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER,
+    user: process.env.EMAIL_USER || 'info@frooxi.com',
     pass: process.env.EMAIL_PASSWORD
   }
 });
@@ -65,24 +67,30 @@ export const forgotPassword = async (req, res, next) => {
     // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
-    // Send email
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || 'noreply@mateluxy.com',
-      to: admin.email,
-      subject: 'Password Reset Request',
-      html: `
-        <h1>Password Reset</h1>
-        <p>Hello ${admin.fullName || admin.username},</p>
-        <p>You requested a password reset. Please click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #e53e3e; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-        <p>This link is valid for 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-        <p>Thank you,</p>
-        <p>The MateLuxy Team</p>
-      `
-    };
+    try {
+      // Attempt to send email
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || '"MateLuxy" <info@frooxi.com>',
+        to: admin.email,
+        subject: 'Password Reset Request',
+        html: `
+          <h1>Password Reset</h1>
+          <p>Hello ${admin.fullName || admin.username},</p>
+          <p>You requested a password reset. Please click the link below to reset your password:</p>
+          <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #e53e3e; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+          <p>This link is valid for 1 hour.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+          <p>Thank you,</p>
+          <p>The MateLuxy Team</p>
+        `
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      // If email sending fails, just log the error but don't stop the process
+      console.error('Email sending failed:', emailError.message);
+      console.log('For development testing, use this reset token:', resetToken);
+    }
 
     res.status(200).json({
       success: true,
