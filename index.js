@@ -15,7 +15,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
-
+import bannerRouter from './routes/banner.route.js';
 
 
 dotenv.config();
@@ -74,6 +74,9 @@ app.use('/api/contact', contactRouter);
 // Messages routes - new system
 console.log('Registering messages routes at /api/messages');
 app.use('/api/messages', messagesRouter);
+// Banner routes
+console.log('Registering banner routes at /api/banners');
+app.use('/api/banners', bannerRouter);
 
 
 
