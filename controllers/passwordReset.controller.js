@@ -44,10 +44,10 @@ export const forgotPassword = async (req, res, next) => {
     // Find the admin by email
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      // For security reasons, don't reveal that the email doesn't exist
-      return res.status(200).json({ 
-        success: true,
-        message: "If your email exists in our system, you will receive a password reset link."
+      // Return an error message indicating no admin was found with this email
+      return res.status(404).json({ 
+        success: false,
+        message: "No admin account found with this email address."
       });
     }
 
