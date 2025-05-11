@@ -6,7 +6,7 @@ import {
   updateBanner, 
   deleteBanner 
 } from "../controllers/banner.controller.js";
-import { verifyToken } from "../utils/verifyUser.js";
+import { verifyToken } from "../utils/verifyToken.js";
 
 const router = express.Router();
 
