@@ -15,7 +15,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
-import bannerRouter from './routes/banner.route.js';
+import bannerRouter from './Routes/banner.route.js';
 
 
 dotenv.config();
