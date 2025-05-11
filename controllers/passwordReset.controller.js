@@ -27,16 +27,45 @@ const PasswordResetToken = mongoose.models.PasswordResetToken ||
     }
   }));
 
-// Configure nodemailer transporter for webmail
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'mail.frooxi.com', // Your webmail host
-  port: process.env.EMAIL_PORT || 465, // Common ports: 465 (SSL) or 587 (TLS)
-  secure: process.env.EMAIL_SECURE === 'false' ? false : true, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER || 'info@frooxi.com',
-    pass: process.env.EMAIL_PASSWORD
+// Create a test account for development and a real transporter for production
+const createTransporter = async () => {
+  // For development/testing, create a test account if no email credentials are provided
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.log('No email credentials found, creating a test account...');
+    const testAccount = await nodemailer.createTestAccount();
+    console.log('Test email account created:');
+    console.log('- Email:', testAccount.user);
+    console.log('- Password:', testAccount.pass);
+    
+    return {
+      transporter: nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      }),
+      isTestAccount: true,
+      testAccount
+    };
   }
-});
+  
+  // For production, use the configured email service
+  return {
+    transporter: nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'mail.frooxi.com',
+      port: process.env.EMAIL_PORT || 465,
+      secure: process.env.EMAIL_SECURE === 'false' ? false : true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    }),
+    isTestAccount: false
+  };
+};
 
 // Request a password reset
 export const forgotPassword = async (req, res, next) => {
@@ -68,9 +97,15 @@ export const forgotPassword = async (req, res, next) => {
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
     try {
-      // Attempt to send email
+      // Create a transporter (either test or production)
+      const { transporter, isTestAccount, testAccount } = await createTransporter();
+      
+      // Set up email options
+      const from = process.env.EMAIL_FROM || 
+                 (isTestAccount ? '"MateLuxy Test" <test@example.com>' : '"MateLuxy" <info@frooxi.com>');
+      
       const mailOptions = {
-        from: process.env.EMAIL_FROM || '"MateLuxy" <info@frooxi.com>',
+        from,
         to: admin.email,
         subject: 'Password Reset Request',
         html: `
@@ -85,11 +120,23 @@ export const forgotPassword = async (req, res, next) => {
         `
       };
 
-      await transporter.sendMail(mailOptions);
+      // Send the email
+      const info = await transporter.sendMail(mailOptions);
+      
+      // If using a test account, log the preview URL
+      if (isTestAccount) {
+        console.log('\n===== TEST EMAIL SENT =====');
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        console.log('Click the link above to view the test email');
+        console.log('Reset token for testing:', resetToken);
+        console.log('Reset URL:', resetUrl);
+        console.log('===========================\n');
+      }
     } catch (emailError) {
       // If email sending fails, just log the error but don't stop the process
       console.error('Email sending failed:', emailError.message);
       console.log('For development testing, use this reset token:', resetToken);
+      console.log('Reset URL:', resetUrl);
     }
 
     res.status(200).json({
