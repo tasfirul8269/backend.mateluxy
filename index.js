@@ -16,7 +16,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
-import propertyRequestRouter from './routes/propertyRequests.routes.js';
+import propertyRequestRouter from './Routes/propertyRequests.routes.js';
 
 
 dotenv.config();
