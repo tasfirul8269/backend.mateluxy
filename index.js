@@ -11,7 +11,6 @@ import notificationsRouter from './Routes/notifications.routes.js';
 import contactRouter from './Routes/contact.routes.js';
 import messagesRouter from './Routes/messages.routes.js';
 import passwordResetRouter from './Routes/passwordReset.route.js';
-import propertyRequestRouter from './Routes/propertyRequest.routes.js';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -78,9 +77,6 @@ app.use('/api/messages', messagesRouter);
 // Banner routes
 console.log('Registering banner routes at /api/banners');
 app.use('/api/banners', bannerRouter);
-// Property Request routes
-console.log('Registering property request routes at /api/property-requests');
-app.use('/api/property-requests', propertyRequestRouter);
 
 
 
