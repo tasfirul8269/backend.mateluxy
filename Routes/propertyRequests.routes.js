@@ -52,8 +52,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/property-requests - Get all property requests (admin only)
-router.get('/', adminAuthMiddleware, async (req, res) => {
+// GET /api/property-requests - Get all property requests (for testing, removed admin auth middleware)
+router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -107,8 +107,8 @@ router.get('/', adminAuthMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/property-requests/:id - Get a specific property request (admin only)
-router.get('/:id', adminAuthMiddleware, async (req, res) => {
+// GET /api/property-requests/:id - Get a specific property request (for testing, removed admin auth middleware)
+router.get('/:id', async (req, res) => {
   try {
     const propertyRequest = await PropertyRequest.findById(req.params.id);
     
@@ -133,8 +133,8 @@ router.get('/:id', adminAuthMiddleware, async (req, res) => {
   }
 });
 
-// PATCH /api/property-requests/:id - Update a property request (admin only)
-router.patch('/:id', adminAuthMiddleware, async (req, res) => {
+// PATCH /api/property-requests/:id - Update a property request (for testing, removed admin auth middleware)
+router.patch('/:id', async (req, res) => {
   try {
     const { status, notes } = req.body;
     
@@ -166,8 +166,8 @@ router.patch('/:id', adminAuthMiddleware, async (req, res) => {
   }
 });
 
-// DELETE /api/property-requests/:id - Delete a property request (admin only)
-router.delete('/:id', adminAuthMiddleware, async (req, res) => {
+// DELETE /api/property-requests/:id - Delete a property request (for testing, removed admin auth middleware)
+router.delete('/:id', async (req, res) => {
   try {
     const propertyRequest = await PropertyRequest.findByIdAndDelete(req.params.id);
     
