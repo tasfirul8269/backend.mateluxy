@@ -16,6 +16,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
+import propertyRequestRouter from './routes/propertyRequests.routes.js';
 
 
 dotenv.config();
@@ -77,6 +78,9 @@ app.use('/api/messages', messagesRouter);
 // Banner routes
 console.log('Registering banner routes at /api/banners');
 app.use('/api/banners', bannerRouter);
+// Property Request routes
+console.log('Registering property request routes at /api/property-requests');
+app.use('/api/property-requests', propertyRequestRouter);
 
 
 
