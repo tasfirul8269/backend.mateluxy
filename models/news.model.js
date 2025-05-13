@@ -34,21 +34,24 @@ const NewsSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    required: true,
+    required: false,
     unique: true
   }
 }, { timestamps: true });
 
 // Generate slug from title
 NewsSchema.pre('save', function(next) {
-  if (!this.isModified('title')) return next();
+  console.log('Pre-save hook running for News model');
+  console.log('Title:', this.title);
   
+  // Always generate a slug regardless of title modification
   this.slug = this.title
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '') + '-' + Date.now().toString().slice(-4);
   
+  console.log('Generated slug:', this.slug);
   next();
 });
 

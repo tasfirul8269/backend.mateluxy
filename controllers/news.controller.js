@@ -67,14 +67,25 @@ export const getNewsBySlug = async (req, res, next) => {
 // Create a new news article
 export const createNews = async (req, res, next) => {
   try {
+    console.log('Creating news with data:', req.body);
+    
     // Create a new news article
     const newNews = new News(req.body);
+    console.log('News model created:', newNews);
     
     // Save the news article
     const savedNews = await newNews.save();
+    console.log('News saved successfully:', savedNews);
     
     res.status(201).json(savedNews);
   } catch (error) {
+    console.error('Error in createNews:', error);
+    
+    if (error.name === 'ValidationError') {
+      console.error('Validation error details:', error.errors);
+      return next(errorHandler(400, error.message || "Validation error while creating news"));
+    }
+    
     next(errorHandler(500, error.message || "Error creating news article"));
   }
 };
