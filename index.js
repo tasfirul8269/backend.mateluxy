@@ -20,7 +20,6 @@ import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
 import propertyRequestRouter from './Routes/propertyRequests.routes.js';
 import newsRouter from './Routes/news.routes.js';
-import developersRouter from './Routes/developers.routes.js';
 
 dotenv.config();
 
@@ -87,10 +86,6 @@ app.use('/api/property-requests', propertyRequestRouter);
 // News routes
 console.log('Registering news routes at /api/news');
 app.use('/api/news', newsRouter);
-
-// Developers routes
-console.log('Registering developers routes at /api/developers');
-app.use('/api/developers', developersRouter);
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
