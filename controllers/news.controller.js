@@ -1,5 +1,5 @@
 import News from '../models/news.model.js';
-import { createError } from '../utils/erros.js';
+import { errorHandler } from '../utils/erros.js';
 
 // Get all news articles
 export const getAllNews = async (req, res, next) => {
@@ -30,7 +30,7 @@ export const getAllNews = async (req, res, next) => {
     
     res.status(200).json(news);
   } catch (error) {
-    next(createError(500, "Error retrieving news articles"));
+    next(errorHandler(500, "Error retrieving news articles"));
   }
 };
 
@@ -40,12 +40,12 @@ export const getNewsById = async (req, res, next) => {
     const news = await News.findById(req.params.id);
     
     if (!news) {
-      return next(createError(404, "News article not found"));
+      return next(errorHandler(404, "News article not found"));
     }
     
     res.status(200).json(news);
   } catch (error) {
-    next(createError(500, "Error retrieving news article"));
+    next(errorHandler(500, "Error retrieving news article"));
   }
 };
 
@@ -55,12 +55,12 @@ export const getNewsBySlug = async (req, res, next) => {
     const news = await News.findOne({ slug: req.params.slug });
     
     if (!news) {
-      return next(createError(404, "News article not found"));
+      return next(errorHandler(404, "News article not found"));
     }
     
     res.status(200).json(news);
   } catch (error) {
-    next(createError(500, "Error retrieving news article"));
+    next(errorHandler(500, "Error retrieving news article"));
   }
 };
 
@@ -75,7 +75,7 @@ export const createNews = async (req, res, next) => {
     
     res.status(201).json(savedNews);
   } catch (error) {
-    next(createError(500, error.message || "Error creating news article"));
+    next(errorHandler(500, error.message || "Error creating news article"));
   }
 };
 
@@ -89,12 +89,12 @@ export const updateNews = async (req, res, next) => {
     );
     
     if (!updatedNews) {
-      return next(createError(404, "News article not found"));
+      return next(errorHandler(404, "News article not found"));
     }
     
     res.status(200).json(updatedNews);
   } catch (error) {
-    next(createError(500, "Error updating news article"));
+    next(errorHandler(500, "Error updating news article"));
   }
 };
 
@@ -104,11 +104,11 @@ export const deleteNews = async (req, res, next) => {
     const deletedNews = await News.findByIdAndDelete(req.params.id);
     
     if (!deletedNews) {
-      return next(createError(404, "News article not found"));
+      return next(errorHandler(404, "News article not found"));
     }
     
     res.status(200).json({ message: "News article deleted successfully" });
   } catch (error) {
-    next(createError(500, "Error deleting news article"));
+    next(errorHandler(500, "Error deleting news article"));
   }
 }; 
