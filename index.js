@@ -17,6 +17,7 @@ import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
 import propertyRequestRouter from './Routes/propertyRequests.routes.js';
+import newsRouter from './Routes/news.routes.js';
 
 
 dotenv.config();
@@ -81,6 +82,9 @@ app.use('/api/banners', bannerRouter);
 // Property Request routes
 console.log('Registering property request routes at /api/property-requests');
 app.use('/api/property-requests', propertyRequestRouter);
+// News routes
+console.log('Registering news routes at /api/news');
+app.use('/api/news', newsRouter);
 
 
 
