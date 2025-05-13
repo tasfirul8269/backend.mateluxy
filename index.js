@@ -1,6 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose'; 
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+
+// Routes
 import agentsRouter from './Routes/agents.routes.js';
 import addAgents from './Routes/addAgents.routes.js';
 import adminsRouter from './Routes/admins.routes.js';
@@ -11,14 +16,11 @@ import notificationsRouter from './Routes/notifications.routes.js';
 import contactRouter from './Routes/contact.routes.js';
 import messagesRouter from './Routes/messages.routes.js';
 import passwordResetRouter from './Routes/passwordReset.route.js';
-import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
-import cors from 'cors';
 import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
 import propertyRequestRouter from './Routes/propertyRequests.routes.js';
 import newsRouter from './Routes/news.routes.js';
-
+import developersRouter from './Routes/developers.routes.js';
 
 dotenv.config();
 
@@ -86,8 +88,9 @@ app.use('/api/property-requests', propertyRequestRouter);
 console.log('Registering news routes at /api/news');
 app.use('/api/news', newsRouter);
 
-
-
+// Developers routes
+console.log('Registering developers routes at /api/developers');
+app.use('/api/developers', developersRouter);
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
