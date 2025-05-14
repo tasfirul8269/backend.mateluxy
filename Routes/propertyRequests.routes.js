@@ -1,6 +1,7 @@
 import express from 'express';
 import { authMiddleware, adminAuthMiddleware } from '../middleware/auth.middleware.js';
 import PropertyRequest from '../models/propertyRequest.model.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -25,12 +26,25 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Convert propertyId to ObjectId if provided as a string
+    let propertyInfoWithId = propertyInfo;
+    if (propertyInfo.propertyId && typeof propertyInfo.propertyId === 'string') {
+      try {
+        propertyInfoWithId = {
+          ...propertyInfo,
+          propertyId: mongoose.Types.ObjectId(propertyInfo.propertyId)
+        };
+      } catch (err) {
+        console.log('Invalid propertyId format, keeping as string:', err.message);
+      }
+    }
+
     const newRequest = new PropertyRequest({
       name,
       email,
       countryCode,
       phone,
-      propertyInfo,
+      propertyInfo: propertyInfoWithId,
       privacyConsent,
       marketingConsent
     });
