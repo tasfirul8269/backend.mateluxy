@@ -20,6 +20,8 @@ import propertyRoutes from './Routes/propertyRoutes.js';
 import bannerRouter from './Routes/banner.route.js';
 import propertyRequestRouter from './Routes/propertyRequests.routes.js';
 import newsRouter from './Routes/news.routes.js';
+import s3UploadRouter from './Routes/s3Upload.routes.js';
+import s3ProxyRouter from './Routes/s3Proxy.routes.js';
 
 dotenv.config();
 
@@ -86,6 +88,14 @@ app.use('/api/property-requests', propertyRequestRouter);
 // News routes
 console.log('Registering news routes at /api/news');
 app.use('/api/news', newsRouter);
+
+// S3 Upload routes
+console.log('Registering S3 upload routes at /api/upload-to-s3');
+app.use('/api/upload-to-s3', s3UploadRouter);
+
+// S3 Proxy routes for serving images
+console.log('Registering S3 proxy routes at /api/s3-proxy');
+app.use('/api/s3-proxy', s3ProxyRouter);
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;

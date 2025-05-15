@@ -21,11 +21,13 @@ export const adminSignIn = async (req, res, next) => {
         // Remove password from response
         const { password: pass, ...rest } = validAdmin._doc;
         
-        // Set cookie options based on rememberMe
+        // Set cookie options based on environment and rememberMe
+        const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
             httpOnly: true,
-            secure: true, // must be false on localhost (HTTP)
-            sameSite: "None", // or "strict", either is fine
+            secure: isProduction, // Only use secure in production
+            sameSite: isProduction ? "None" : "Lax", // Use Lax for local development
+            path: '/' // Ensure cookie is sent with all requests
         };
         
         // If rememberMe is true, set expiration to 30 days, otherwise session cookie
@@ -35,6 +37,8 @@ export const adminSignIn = async (req, res, next) => {
         } else {
             console.log('Remember me disabled, using session cookie');
         }
+        
+        console.log('Setting JWT token with secret:', process.env.JWT_SECRET ? 'Secret exists' : 'SECRET MISSING!');
         
         // Set cookie and return response
         res.cookie("access_token", token, cookieOptions)
